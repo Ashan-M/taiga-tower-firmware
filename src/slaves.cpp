@@ -166,8 +166,12 @@ int mapLight(int value) {
     return map(value, 0, 100, 0, 4095);
 }
 
+// int mapMoisture(int value) {
+//     return map(value, 0, 100, 310, 770);
+// }
+
 int mapMoisture(int value) {
-    return map(value, 0, 100, 310, 770);
+    return map(value, 310, 770, 0, 100);
 }
 
 void readSensor(int i) {
@@ -214,9 +218,10 @@ void controlPod(int i) {
     }
 
     // ---------- PUMP ----------
-    int desiredMoisture = mapMoisture(p.targetMoisture);
+    int desiredMoisture = p.targetMoisture;
+    p.currentMoisture = mapMoisture(p.currentMoisture);
     bool pumpOn = (p.currentMoisture > desiredMoisture);
-
+    // Serial.println("------");
     // Serial.println("Current Moisture: " + String(p.currentMoisture));
     // Serial.println("Target Moisture: " + String(desiredMoisture));
 

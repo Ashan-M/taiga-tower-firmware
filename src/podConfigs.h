@@ -52,6 +52,12 @@ struct PodMode : Defaults
     String mode;
 };
 
+struct PlantConfig
+{
+    String plantID;
+    float moistureLevel;
+    float lightIntensity;
+};
 
 struct PodControllers : Defaults
 {
@@ -68,7 +74,7 @@ struct PodControllers : Defaults
     bool hasPodLight = false;
     bool hasmanualLightIntensity = false;
     bool hasmanualMoistureLevel = false;
-    bool hasPodPumpTimer;
+    bool hasPodPumpTimer = false;
 
 };
 
@@ -92,4 +98,5 @@ struct MQTTJob
     PodMode podMode;
     PodControllers podControllers;
     PodDeletation deletePod;
+    PlantConfig plantConfig;
 };

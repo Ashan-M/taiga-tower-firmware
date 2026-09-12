@@ -223,6 +223,7 @@ void loadActivePods()
         pods[i].active = config.active;
         strcpy(pods[i].podID, config.podID);
         strcpy(pods[i].podName, config.podName);
+        strcpy(pods[i].plantID, config.plantID);
         pods[i].targetLight = config.targetLight;
         pods[i].targetMoisture = config.targetMoisture;
         pods[i].slavePin = config.slavePin;
@@ -235,6 +236,7 @@ void loadActivePods()
         Serial.print(": ");
         Serial.println("Pod ID: " + String(pods[i].podID));
         Serial.println("Pod Name: " + String(pods[i].podName));
+        Serial.println("Plant ID: " + String(pods[i].plantID));
         Serial.println("Pod Target Light: " + String(pods[i].targetLight));
         Serial.println("Pod Target Moisture: " + String(pods[i].targetMoisture));
         Serial.println("Connected Pins: " + String(pods[i].slavePin) + ", " + String(pods[i].pumpPin) + ", " + String(pods[i].pwmChannel));

@@ -6,9 +6,16 @@
 #include "podConfigs.h"
 #include "globals.h"
 #include "pods.h"
+#include <WiFiClientSecure.h>
 
-const char* MQTT_BROKER = "broker.emqx.io";
-const int MQTT_PORT = 1883;
+WiFiClientSecure espClient;
+PubSubClient client(espClient);
+
+// WiFiClient espClient;
+// PubSubClient client(espClient);
+
+const char* MQTT_BROKER = "gd282711.ala.asia-southeast1.emqxsl.com";
+const int MQTT_PORT = 8883;
 const char* MQTT_USERNAME = "taiga-tower@123!";
 const char* MQTT_PASSWORD = "ashan07505825082";
 
@@ -48,8 +55,6 @@ const char* topics[] = {
     MQTT_OTA_UPDATES_TOPIC
 };
 
-WiFiClient espClient;
-PubSubClient client(espClient);
 
 void printAck(
     const String& ackTopic,
@@ -239,7 +244,10 @@ void callback(
     }
 
     else if (strcmp(topic, topics[5]) == 0){
-        // job.type = MQTT_JOB_REMOVE_POD;
+        job.type = MQTT_JOB_UPDDATE_PLANT_CONFIG;
+        job.plantConfig.plantID = doc["plantID"].as<String>();
+        job.plantConfig.lightIntensity = doc["lightIntensity"].as<float>();
+        job.plantConfig.moistureLevel = doc["moistureLevel"].as<float>();
     }
 
     if (xQueueSend(
@@ -294,9 +302,11 @@ void mqttProcessingTask(void* parameter) {
                 Serial.println("Executing MQTT_JOB_MASTER_CONTROL");
                 if (job.masterControllers.hasMasterLight){
                     updateMasterControllers("masterLight", job.masterControllers.masterLight);
+                    job.masterControllers.hasMasterLight = false;
                 } 
                 if(job.masterControllers.hasSleepMode){
                     updateMasterControllers("sleepMode", job.masterControllers.sleepMode);
+                    job.masterControllers.hasSleepMode = false;
                 }
 
                 break;
@@ -357,6 +367,7 @@ void mqttProcessingTask(void* parameter) {
                 if(job.podControllers.hasPodPumpTimer) {
                     Serial.print("Controll podPump: ");
                     Serial.println(podIndex);
+                    job.podControllers.hasPodPumpTimer = false;
                     startPumpTimer(podIndex, job.podControllers.podPumpTimer);
                     
                 }
@@ -364,11 +375,28 @@ void mqttProcessingTask(void* parameter) {
                     Serial.println("Sert manual Light Intensity");
                     Serial.println(p.pwmChannel);
                     if(job.podControllers.podLight && globalLightCmd){
-                    controlLight(p.pwmChannel, p.targetLight);
+                        p.targetLight = job.podControllers.manualLightIntensity;
+                        // controlLight(p.pwmChannel, p.targetLight);
+                        savePodConfig(podIndex + 1, p);
+
+                        Serial.println(
+                            "Updated Pod Config for: " +
+                            String(p.podName)
+                        );
+                        job.podControllers.hasmanualLightIntensity = false;
+
                 }
                 }
                 if(job.podControllers.hasmanualMoistureLevel) {
                     Serial.println("Set manual Moisture Level");
+                    p.targetMoisture = job.podControllers.manualMoistureLevel;
+                    savePodConfig(podIndex + 1, p);
+                    Serial.println(
+                            "Updated Pod Config for: " +
+                            String(p.podName)
+                        );
+                        job.podControllers.hasmanualMoistureLevel = false;
+
                 }
 
                 break;
@@ -385,7 +413,32 @@ void mqttProcessingTask(void* parameter) {
                         }
                     removePodConfig(podIndex);
                     break;
+            }
+            case MQTT_JOB_UPDDATE_PLANT_CONFIG:
+                        {
+                for (int i = 0; i < NUM_PODS; i++) {
+
+                    Pod &p = pods[i];
+
+                    if (!p.active)
+                        continue;
+
+                    if (strcmp(p.plantID, job.plantConfig.plantID.c_str()) == 0) {
+
+                        p.targetLight = job.plantConfig.lightIntensity;
+                        p.targetMoisture = job.plantConfig.moistureLevel;
+
+                        savePodConfig(i + 1, p);
+
+                        Serial.println(
+                            "Updated Pod Config for: " +
+                            String(p.podName)
+                        );
                     }
+                }
+
+                break;
+            }
             
 
             }
@@ -422,6 +475,7 @@ bool connectMQTT()
 
     Serial.print("Client ID: ");
     Serial.println(clientId);
+    espClient.setInsecure();
 
     if (
         client.connect(

@@ -54,3 +54,4 @@ int findPodIndexByID(String podID);
 
 // dataLog.cpp
 bool sendPodData();
+bool sendFloaterStat(bool stat);

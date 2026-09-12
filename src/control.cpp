@@ -35,6 +35,7 @@ void controlWaterPump(uint8_t podNo, bool on) {
 }
 
 void checkFloater() {
+  Serial.println("Checking Floater");
 
     if (millis() - lastFloatCheck > floatCheckInterval) {
 
@@ -58,9 +59,10 @@ void checkFloater() {
 
             Serial.println("🔄 Floater changed → updating Firebase");
 
-            // updateFirebaseFloaer(currentState);
-
             lastFloaterState = currentState;
+            bool stat = (currentState == "HIGH") ? true : false;
+
+            sendFloaterStat(stat);
         }
     }
 }

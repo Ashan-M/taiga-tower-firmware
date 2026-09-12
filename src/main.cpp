@@ -32,6 +32,7 @@ void collectAndSendPodData()
     }
 
     sendPodData();
+    checkFloater();
 }
 
 void sensorHttpTask(void *parameter)
@@ -83,13 +84,14 @@ void setup() {
     if(mqttInit) {
       mqttStat = connectMQTT();
     }
-  }
+  
     loadActivePods();
     initLightControl();
     startMQTTTaskProcess();
     loadMasterControllers("masterLight", globalLightCmd);
     loadMasterControllers("sleepMode", globalSleepMode);
     loadMasterControllers("masterPump", globalPumpCmd);
+}
 
     xTaskCreatePinnedToCore(
     sensorHttpTask,
