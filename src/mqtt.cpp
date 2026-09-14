@@ -22,22 +22,22 @@ const char* MQTT_PASSWORD = "ashan07505825082";
 QueueHandle_t mqttQueue;
 #define MQTT_QUEUE_SIZE 10
 
-const char* MQTT_TOPIC_HEADER = "taiga-tower/devices/001002/";
+const char* MQTT_TOPIC_HEADER = "taiga-tower/devices/001003/";
 // Command topic
 const char* MQTT_MASTER_CONTROL_TOPIC =
-    "taiga-tower/devices/001002/command";
+    "taiga-tower/devices/001003/command";
 
 const char* MQTT_POD_ACTIVATE_TOPIC = 
-    "taiga-tower/devices/001002/activatePod";
+    "taiga-tower/devices/001003/activatePod";
 
 const char* MQTT_POD_MODE_TOPIC =
-    "taiga-tower/devices/001002/mode";
+    "taiga-tower/devices/001003/mode";
 
 const char* MQTT_POD_COMMAND_TOPIC = 
-    "taiga-tower/devices/001002/podCommand";
+    "taiga-tower/devices/001003/podCommand";
 
 const char* MQTT_REMOVE_POD_TOPIC = 
-    "taiga-tower/devices/001002/removePod";
+    "taiga-tower/devices/001003/removePod";
 
 const char* UPDATE_PLANT_CONFIG_TOPIC = 
     "taiga-tower/plants/update";
@@ -344,6 +344,8 @@ void mqttProcessingTask(void* parameter) {
                 strncpy(pods[index].podID, newPod.podID, sizeof(pods[index].podID) - 1);
                 strncpy(pods[index].podName, newPod.podName, sizeof(pods[index].podName) - 1);
                 strncpy(pods[index].plantID, newPod.plantID, sizeof(pods[index].plantID) - 1);
+                pods[index].pumpPin = newPod.pumpPin;
+                pods[index].pwmChannel = newPod.pwmChannel;
                 pods[index].targetLight = newPod.targetLight;
                 pods[index].targetMoisture = newPod.targetMoisture;
                 pods[index].targetLight = newPod.targetLight;
@@ -367,25 +369,22 @@ void mqttProcessingTask(void* parameter) {
                 if(job.podControllers.hasPodPumpTimer) {
                     Serial.print("Controll podPump: ");
                     Serial.println(podIndex);
-                    job.podControllers.hasPodPumpTimer = false;
                     startPumpTimer(podIndex, job.podControllers.podPumpTimer);
+                    job.podControllers.hasPodPumpTimer = false;
                     
                 }
                 if(job.podControllers.hasmanualLightIntensity) {
-                    Serial.println("Sert manual Light Intensity");
-                    Serial.println(p.pwmChannel);
-                    if(job.podControllers.podLight && globalLightCmd){
-                        p.targetLight = job.podControllers.manualLightIntensity;
-                        // controlLight(p.pwmChannel, p.targetLight);
-                        savePodConfig(podIndex + 1, p);
+                    Serial.println("Set manual Light Intensity");
+                    // Serial.println(p.pwmChannel);
+                    p.targetLight = job.podControllers.manualLightIntensity;
+                    savePodConfig(podIndex + 1, p);
 
                         Serial.println(
                             "Updated Pod Config for: " +
                             String(p.podName)
                         );
                         job.podControllers.hasmanualLightIntensity = false;
-
-                }
+          
                 }
                 if(job.podControllers.hasmanualMoistureLevel) {
                     Serial.println("Set manual Moisture Level");
@@ -412,6 +411,7 @@ void mqttProcessingTask(void* parameter) {
                             break;
                         }
                     removePodConfig(podIndex);
+                    resetPodRuntime(podIndex);
                     break;
             }
             case MQTT_JOB_UPDDATE_PLANT_CONFIG:

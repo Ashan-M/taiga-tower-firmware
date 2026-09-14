@@ -2,6 +2,7 @@
 #include "globals.h"
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include "pods.h"
 
 TimerHandle_t pumpTimers[NUM_PODS];
 unsigned long lastFloatCheck = 0;
@@ -24,7 +25,7 @@ void initLightControl() {
 
 void controlLight(int channel, int brightness) {
     pwm.setPWM(channel, 0, brightness);
-    // Serial.println("Set light channel " + String(channel) + " to brightness " + String(brightness));
+    Serial.println("Set light channel " + String(channel) + " to brightness " + String(brightness));
     // delay(500);
 }
 
@@ -143,4 +144,18 @@ void startPumpTimer(uint8_t podNo, uint32_t durationSeconds){
   xTimerChangePeriod(timer, pdMS_TO_TICKS(durationSeconds * 1000), 0);
   xTimerStart(timer, 0);
   Serial.printf("Pump timer started for POD %d\n", podNo);
+}
+
+void resetPodRuntime(int index) {
+    pods[index].active = false;
+    pods[index].hardwareConnected = false;
+
+    strcpy(pods[index].podID, "");
+    strcpy(pods[index].podName, "");
+
+    pods[index].targetLight = 0;
+    pods[index].targetMoisture = 0;
+    pods[index].slavePin = 0;
+    pods[index].pumpPin = 0;
+    pods[index].pwmChannel = 0;
 }

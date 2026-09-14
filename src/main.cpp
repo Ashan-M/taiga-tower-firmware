@@ -66,6 +66,10 @@ void activePumpPins() {
     }
 }
 
+void turnOffAllPWMChannels() {
+    for (int i=0; i<6; i++);
+}
+
 void setup() {
     Serial.begin(115200);
     pinMode(CLK_PIN, OUTPUT);
@@ -75,7 +79,6 @@ void setup() {
     digitalWrite(WIFI_LED, LOW);
     activePumpPins();
     setupPumpTimers();
-
     connectToWifi();
     
     delay(2000);
@@ -84,6 +87,7 @@ void setup() {
     if(mqttInit) {
       mqttStat = connectMQTT();
     }
+
   
     loadActivePods();
     initLightControl();

@@ -23,6 +23,7 @@ void updateMasterControllers(String controller, bool state);
 void pumpTimerCallback(TimerHandle_t timer);
 void setupPumpTimers();
 void startPumpTimer(uint8_t podNo, uint32_t durationSeconds);
+void resetPodRuntime(int index);
 
 // slaves.cpp
 void initSlave(int slot);

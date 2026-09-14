@@ -3,8 +3,8 @@
 #include "pods.h"
 #include "main.h"
 
-const char* API_URL = "https://taiga-tower-backend.vercel.app/devices/001002/pods/data-log";
-const char* API_URL_FLOATER = "https://taiga-tower-backend.vercel.app/devices/001002/floater_status";
+const char* API_URL = "https://taiga-tower-backend.vercel.app/devices/001003/pods/data-log";
+const char* API_URL_FLOATER = "https://taiga-tower-backend.vercel.app/devices/001003/floater_status";
 // const char* API_URL = "http://192.168.8.170:8000/devices/001002/pods/data-log";
 // const char* API_URL_FLOATER = "http://192.168.8.170:8000/devices/001002/floater_status";
 
@@ -24,7 +24,7 @@ bool sendPodData()
 
     JsonDocument doc;
 
-    doc["deviceID"] = "001002";
+    doc["deviceID"] = "001003";
 
     JsonArray podArray = doc["pods"].to<JsonArray>();
 

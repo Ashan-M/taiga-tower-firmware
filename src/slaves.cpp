@@ -194,6 +194,9 @@ void activateSleepMode() {
 void controlPod(int i) {
 
     Pod &p = pods[i];
+    Serial.println("------" + String(p.podName) + "-------");
+    Serial.println("PWM Channel: " + String(p.pwmChannel));
+    Serial.println("Motor Pin: " + String(p.pumpPin));
 
     if (!p.active){
         // Turn off pumpand light for that pod
@@ -207,7 +210,7 @@ void controlPod(int i) {
 
     if (globalLightCmd) {
       desiredLight = mapLight(p.targetLight);
-      // Serial.println("Target Light: " + String(p.targetLight));
+      Serial.println("Target Light: " + String(p.targetLight));
       controlLight(p.pwmChannel, desiredLight);
          
     }
@@ -219,15 +222,16 @@ void controlPod(int i) {
 
     // ---------- PUMP ----------
     int desiredMoisture = p.targetMoisture;
-    p.currentMoisture = mapMoisture(p.currentMoisture);
-    bool pumpOn = (p.currentMoisture > desiredMoisture);
-    // Serial.println("------");
-    // Serial.println("Current Moisture: " + String(p.currentMoisture));
-    // Serial.println("Target Moisture: " + String(desiredMoisture));
+    int podIndex = findPodIndexByID(p.podID);
+    readSensor(podIndex);
+    // p.currentMoisture = mapMoisture(p.currentMoisture);
+    bool pumpOn = (p.currentMoisture < desiredMoisture);
+    Serial.println("Current Moisture: " + String(p.currentMoisture));
+    Serial.println("Target Moisture: " + String(desiredMoisture));
 
     if (pumpOn) {
         controlWaterPump(i, pumpOn);
-        // Serial.println("Pod " + String(i+1) + (pumpOn ? " Pump ON" : " Pump OFF"));
+        Serial.println("Pod " + String(i+1) + (pumpOn ? " Pump ON" : " Pump OFF"));
     }
     else{
         controlWaterPump(i, LOW);
