@@ -22,22 +22,22 @@ const char* MQTT_PASSWORD = "ashan07505825082";
 QueueHandle_t mqttQueue;
 #define MQTT_QUEUE_SIZE 10
 
-const char* MQTT_TOPIC_HEADER = "taiga-tower/devices/001003/";
+const char* MQTT_TOPIC_HEADER = "taiga-tower/devices/" DEVICE_ID "/";
 // Command topic
 const char* MQTT_MASTER_CONTROL_TOPIC =
-    "taiga-tower/devices/001003/command";
+    "taiga-tower/devices/" DEVICE_ID "/command";
 
 const char* MQTT_POD_ACTIVATE_TOPIC = 
-    "taiga-tower/devices/001003/activatePod";
+    "taiga-tower/devices/" DEVICE_ID "/activatePod";
 
 const char* MQTT_POD_MODE_TOPIC =
-    "taiga-tower/devices/001003/mode";
+    "taiga-tower/devices/" DEVICE_ID "/mode";
 
 const char* MQTT_POD_COMMAND_TOPIC = 
-    "taiga-tower/devices/001003/podCommand";
+    "taiga-tower/devices/" DEVICE_ID "/podCommand";
 
 const char* MQTT_REMOVE_POD_TOPIC = 
-    "taiga-tower/devices/001003/removePod";
+    "taiga-tower/devices/" DEVICE_ID "/removePod";
 
 const char* UPDATE_PLANT_CONFIG_TOPIC = 
     "taiga-tower/plants/update";
@@ -220,7 +220,7 @@ void callback(
         }
         if(doc["podPump"].is<bool>()){
             job.podControllers.podPump = doc["podPump"].as<bool>();
-            job.podControllers.podPump = true;
+            job.podControllers.hasPodPump = true;
         }
         if(doc["manualMoistureLevel"].is<float>()){
             job.podControllers.manualMoistureLevel = doc["manualMoistureLevel"].as<float>();
@@ -366,13 +366,13 @@ void mqttProcessingTask(void* parameter) {
                     }
                 Pod &p = pods[podIndex];
 
-                if(job.podControllers.hasPodPumpTimer) {
-                    Serial.print("Controll podPump: ");
-                    Serial.println(podIndex);
-                    startPumpTimer(podIndex, job.podControllers.podPumpTimer);
-                    job.podControllers.hasPodPumpTimer = false;
+                // if(job.podControllers.hasPodPumpTimer) {
+                //     Serial.print("Controll podPump: ");
+                //     Serial.println(podIndex);
+                //     startPumpTimer(podIndex, job.podControllers.podPumpTimer);
+                //     job.podControllers.hasPodPumpTimer = false;
                     
-                }
+                // }
                 if(job.podControllers.hasmanualLightIntensity) {
                     Serial.println("Set manual Light Intensity");
                     // Serial.println(p.pwmChannel);
@@ -396,6 +396,10 @@ void mqttProcessingTask(void* parameter) {
                         );
                         job.podControllers.hasmanualMoistureLevel = false;
 
+                }
+                if (job.podControllers.hasPodPump){
+                    Serial.println("Controling Pump for: " + String(p.podName));
+                    controlWaterPump(podIndex + 1, job.podControllers.podPump);
                 }
 
                 break;

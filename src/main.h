@@ -27,9 +27,8 @@ void resetPodRuntime(int index);
 
 // slaves.cpp
 void initSlave(int slot);
-void executeCommand(uint8_t cmd, bool expectResponse, int activePin);
+bool executeCommand(uint8_t cmd, bool expectResponse, int activePin);
 void initPodStructs();
-void updateFirebasePod(String pod);
 void controlPod(int i);
 void readSensor(int i);
 void handlePodInit(int i);
@@ -56,3 +55,5 @@ int findPodIndexByID(String podID);
 // dataLog.cpp
 bool sendPodData();
 bool sendFloaterStat(bool stat);
+
+bool performOTA(const String &firmwareURL);

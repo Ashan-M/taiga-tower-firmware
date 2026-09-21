@@ -8,6 +8,9 @@
 #define NUM_PODS 6
 #define FLOAT_PIN 34
 #define WIFI_LED 2
+#define DEVICE_ID "001003"
+#define FIRMWARE_VERSION "1.0.2"
+
 
 extern const uint8_t slavePins[NUM_PODS];
 extern const uint8_t motorPins[NUM_PODS];

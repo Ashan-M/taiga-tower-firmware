@@ -6,8 +6,8 @@
 #include "globals.h"
 #include "main.h"
 
-String ssid = "";
-String password = "";
+String ssid = "Ashan_Home";
+String password = "993211656";
 
 WiFiState wifiState = WIFI_IDLE;
 
@@ -101,11 +101,11 @@ void startAP() {
 
 void connectToWifi() {
 
-    if (!returnFromNVS()) {
-        Serial.println("No saved WiFi. Starting AP...");
-        startAP();
-        return;
-    }
+    // if (!returnFromNVS()) {
+    //     Serial.println("No saved WiFi. Starting AP...");
+    //     startAP();
+    //     return;
+    // }
 
     Serial.println("Connecting to WiFi...");
     WiFi.begin(ssid.c_str(), password.c_str());

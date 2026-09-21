@@ -128,23 +128,56 @@ void initSlave(int slot) {
 
 
 
-// NEW HIGH-LEVEL COMMAND HANDLER
-void executeCommand(uint8_t cmd, bool expectResponse, int activePin) {
-  pinMode(activePin, OUTPUT);
-  digitalWrite(activePin, LOW);
-  delayMicroseconds(100);
-  sendByte(cmd, activePin);
+// // NEW HIGH-LEVEL COMMAND HANDLER
+// void executeCommand(uint8_t cmd, bool expectResponse, int activePin) {
+//   pinMode(activePin, OUTPUT);
+//   digitalWrite(activePin, LOW);
+//   delayMicroseconds(100);
+//   sendByte(cmd, activePin);
 
-  if (expectResponse) {
-    if (waitForSlave(500, activePin)) {
-      readLine(rxBuf, sizeof(rxBuf), activePin);
-      Serial.print("Response: ");
-      Serial.println(rxBuf);
-    } else {
-      Serial.println("Error: Slave Timeout");
+//   if (expectResponse) {
+//     if (waitForSlave(500, activePin)) {
+//       readLine(rxBuf, sizeof(rxBuf), activePin);
+//       Serial.print("Response: ");
+//       Serial.println(rxBuf);
+//     } else {
+//       Serial.println("Error: Slave Timeout");
+//     }
+//   }
+//   pinMode(activePin, INPUT_PULLUP);
+// }
+
+bool executeCommand(uint8_t cmd, bool expectResponse, int activePin) {
+
+    pinMode(activePin, OUTPUT);
+    digitalWrite(activePin, LOW);
+
+    memset(rxBuf, 0, sizeof(rxBuf));
+
+    delayMicroseconds(100);
+
+    sendByte(cmd, activePin);
+
+    if (expectResponse) {
+
+        if (!waitForSlave(500, activePin)) {
+
+            Serial.println("Error: Slave Timeout");
+
+            pinMode(activePin, INPUT_PULLUP);
+
+            return false;
+        }
+
+        readLine(rxBuf, sizeof(rxBuf), activePin);
+
+        Serial.print("Response: ");
+        Serial.println(rxBuf);
     }
-  }
-  pinMode(activePin, INPUT_PULLUP);
+
+    pinMode(activePin, INPUT_PULLUP);
+
+    return true;
 }
 
 void handlePodInit(int i) {
@@ -176,7 +209,10 @@ int mapMoisture(int value) {
 
 void readSensor(int i) {
     Serial.println("Reading pin " + String(pods[i].slavePin) + " for pod " + String(i+1));
-    executeCommand(CMD_READ_DATA, true, pods[i].slavePin);
+    bool r = executeCommand(CMD_READ_DATA, true, pods[i].slavePin);
+    if (!r) {
+      return;
+    }
     pods[i].currentMoisture = atof(rxBuf);
     pods[i].currentMoisture = mapMoisture(pods[i].currentMoisture);
 }
