@@ -98,7 +98,7 @@ void setup() {
     checkOTAInfo();
     connectToWifi();
     if(wifi){
-        performOTA("http://192.168.8.170:8000/firmware.bin");
+        performOTA("https://github.com/Ashan-M/taiga-tower-firmware/releases/download/OTA_Test1/firmware.bin");
     }
 //     activePumpPins();
 //     setupPumpTimers();

@@ -9,8 +9,13 @@ bool performOTA(const String &firmwareURL)
     Serial.println("        OTA UPDATE START        ");
     Serial.println("================================");
 
-    WiFiClient client;
+    // WiFiClient client;
+    // HTTPClient http;
+
+    WiFiClientSecure client;
     HTTPClient http;
+    client.setInsecure(); 
+    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
 
     Serial.println("[OTA] URL:");
     Serial.println(firmwareURL);

@@ -6,8 +6,8 @@
 #include "globals.h"
 #include "main.h"
 
-String ssid = "Ashan_Home";
-String password = "993211656";
+String ssid = "ashan";
+String password = "12345678";
 
 WiFiState wifiState = WIFI_IDLE;
 
